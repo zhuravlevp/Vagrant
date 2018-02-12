@@ -6,4 +6,4 @@ vagrant up
 
 ....
 
-vagrant halt of vagrant destroy
+vagrant halt or vagrant destroy
