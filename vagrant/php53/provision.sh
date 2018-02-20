@@ -95,7 +95,8 @@ EOF
 }
 
 php_go() {
-	sudo apt-get -y install php5 php5-curl php5-mysql php5-cli php5-mcrypt php5-imagick
+	sudo apt-get -y install php5 php5-curl php5-mysql php5-cli php5-mcrypt php5-imagick php5-fpm
+
 
 	sudo sed -i "s/display_startup_errors = Off/display_startup_errors = On/g" ${php_config_file}
 	sudo sed -i "s/display_errors = Off/display_errors = On/g" ${php_config_file}
@@ -103,7 +104,52 @@ php_go() {
  	php5enmod curl
 
 	sudo service apache2 restart
+	mkdir /tmp/redis
+sudo apt-get install -y libc6-dev-i386
+cd /tmp/redis
+wget http://download.redis.io/releases/redis-3.0.6.tar.gz
+tar xzf redis-*
+cd redis-*
+make
+make 32bit
+sudo make install clean
+sudo mkdir /etc/redis
+sudo cp redis.conf /etc/redis/redis.conf
+echo "daemonize yes" > /etc/redis/redis.conf
+echo "port 6379" >> /etc/redis/redis.conf
+echo "bind 127.0.0.1" >> /etc/redis/redis.conf
+echo "dir /var/opt" >> /etc/redis/redis.conf
 
+ echo "#!/bin/bash" > /etc/rc.local
+ echo "/usr/local/bin/redis-server /etc/redis/redis.conf" >> /etc/rc.local
+ echo "exit 0" >> /etc/rc.local
+sudo redis-server /etc/redis/redis.conf
+
+sudo apt-get install -y php5-dev
+
+sudo -i
+cd /tmp
+wget https://github.com/nicolasff/phpredis/zipball/master -O phpredis.zip
+unzip phpredis.zip
+cd phpredis-*
+phpize
+./configure
+make && make install
+sudo touch /etc/php5/conf.d/redis.ini
+sudo echo extension=redis.so > /etc/php5/conf.d/redis.ini
+sudo /etc/init.d/apache2 restart
+
+#sudo apt-get install -y php-pear
+#sudo pecl install zendopcache-7.0.3
+#echo "zend_extension=/usr/lib/php5/20090626/opcache.so" > /etc/php5/conf.d/opcache.ini
+#echo "opcache.memory_consumption=128" >> /etc/php5/conf.d/opcache.ini
+#echo "opcache.interned_strings_buffer=8" >> /etc/php5/conf.d/opcache.ini
+#echo "opcache.max_accelerated_files=4000" >> /etc/php5/conf.d/opcache.ini
+#echo "opcache.revalidate_freq=60" >> /etc/php5/conf.d/opcache.ini
+#echo "opcache.fast_shutdown=1" >> /etc/php5/conf.d/opcache.ini
+#echo "opcache.enable_cli=1" >> /etc/php5/conf.d/opcache.ini
+
+sudo service apache2 restart
 }
 mysql_go() {
 	# Install MySQL
