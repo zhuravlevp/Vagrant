@@ -13,7 +13,7 @@ sudo apt-get install virtualbox
 
 sudo apt-get install git
 # Run box:
-git clone https://github.com/cscart/vagrant-boxes.git
+git clone https://github.com/zhuravlevp/Vagrant.git
 
 cd Vagrant/vagrant/php(version)
 
